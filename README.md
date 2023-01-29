@@ -1,4 +1,6 @@
 # WeKi
+![demo](demo/multi-forward_embed.gif)
+
 ## 简介
 WeKi 是使用 [AutoAHK v2](https://www.autohotkey.com/) 编写的简易自动化工具。目的是模拟人操作微信 PC 客户端。
 
