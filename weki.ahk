@@ -95,6 +95,36 @@ mouseMoveBox(x1, x2, y1, y2) {
 }
 */
 
+; NOT TO BE MERGED WITH MAIN BRANCH
+; Win + Shift + 1
+; 向 nameList 填充 导员和学委群 的群名
+#+1::
+{
+    global nameList := ["2022级导员-xzc", "2021级导员-xzc", "2020级导员-xzc", "2019级导员-xzc", "2022级学委", "2021级学委", "2019级学委"]
+    global nameListInd := 1
+    printList(nameList, "导员和学委群")
+}
+
+; NOT TO BE MERGED WITH MAIN BRANCH
+; Win + Shift + 2
+; 向 nameList 填充 各系本科教学主任 的名字
+#+2::
+{
+    global nameList := ["王振波", "王雁冰", "张小燕", "薛东杰", "郑利军", "郝耐"]
+    global nameListInd := 1
+    printList(nameList, "本科教学主任")
+}
+
+; NOT TO BE MERGED WITH MAIN BRANCH
+; Win + Shift + 2
+; 向 nameList 填充 各系本科教学主任 的名字
+#+3::
+{
+    global nameList := ["赵卫平", "杨立云", "李涛", "贺丽洁", "祝捷"]
+    global nameListInd := 1
+    printList(nameList, "系主任")
+}
+
 ; Win + Shift + z
 ; 处理来自剪贴板的输入收件人名单（换行符分隔），并将结果保存在 global nameList
 #+z::
@@ -174,7 +204,7 @@ mouseMoveBox(x1, x2, y1, y2) {
     if (ret.Result = "Cancel") {
         return
     }
-    msg := ret.Value
+    msg_ := ret.Value
     
     ; 寻找微信主窗口。这是因为输入消息后微信主窗口会失去焦点
     if (WinExist("ahk_class WeChatMainWndForPC") ) {
@@ -196,9 +226,10 @@ mouseMoveBox(x1, x2, y1, y2) {
         Send "{Enter}"  ; 选中该联系人
         Sleep 500
         ; 发送消息
+        msg := msg_
         if (templateSubstitute) {
             msg := StrReplace(msg, "{name}", nameList[nameListInd])
-            msg := StrReplace(msg, "{lastname}", nameList[nameListInd][1])
+            msg := StrReplace(msg, "{lastname}", SubStr(nameList[nameListInd], 1, 1))
         }
         SendText msg
         Sleep 100
