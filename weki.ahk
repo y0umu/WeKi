@@ -174,7 +174,7 @@ mouseMoveBox(x1, x2, y1, y2) {
     if (ret.Result = "Cancel") {
         return
     }
-    msg := ret.Value
+    msg_ := ret.Value
     
     ; 寻找微信主窗口。这是因为输入消息后微信主窗口会失去焦点
     if (WinExist("ahk_class WeChatMainWndForPC") ) {
@@ -196,9 +196,10 @@ mouseMoveBox(x1, x2, y1, y2) {
         Send "{Enter}"  ; 选中该联系人
         Sleep 500
         ; 发送消息
+        msg := msg_
         if (templateSubstitute) {
             msg := StrReplace(msg, "{name}", nameList[nameListInd])
-            msg := StrReplace(msg, "{lastname}", nameList[nameListInd][1])
+            msg := StrReplace(msg, "{lastname}", SubStr(nameList[nameListInd], 1, 1))
         }
         SendText msg
         Sleep 100
