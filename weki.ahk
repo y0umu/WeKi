@@ -1,4 +1,5 @@
-﻿/*
+﻿#Requires AutoHotkey v2.0
+/*
 * WeKi
 *
 * 已实现的功能：
@@ -18,19 +19,30 @@
 ;****************************
 ; 参数配置
 ;****************************
+
 ; 高分辨率的不同预设
-preset := "" ; 目前的可能取值有： "hidpi175", ""
-if (preset = "hidpi175") {
+;preset := "hidpi175"
+;if (preset = "hidpi175") {
 ; 175% 缩放下的预设
-    imgDuoXuan := "wechat_multi-forward_assets\duoxuan_hidpi.png"
-    rectDuoXuan := [280, 430, 120, 195]  ; 多选按钮的搜寻区域。坐标形式：[left, right, top, bottom]
-    rectSend := [490, 630, 580, 610] ; 发送按钮区域。坐标形式：[left, right, top, bottom]
-}
-else {
-    imgDuoXuan := "wechat_multi-forward_assets\duoxuan.png"
-    rectDuoXuan := [270, 330, 100, 145]  ; 多选按钮的搜寻区域。坐标形式：[left, right, top, bottom]
-    rectSend := [415, 523 ,489 ,510] ; 发送按钮区域。坐标形式：[left, right, top, bottom]
-}
+;    imgDuoXuan := "wechat_multi-forward_assets\duoxuan_hidpi.png"
+;    rectDuoXuan := [280, 430, 120, 195]  ; 多选按钮的搜寻区域。坐标形式：[left, right, top, bottom]
+;    rectSend := [490, 630, 580, 610] ; 发送按钮区域。坐标形式：[left, right, top, bottom]
+;}
+;else if (preset = "1080") {
+;    imgDuoXuan := "wechat_multi-forward_assets\duoxuan_1080.png"
+;    rectDuoXuan := [140, 240, 60, 135]  ; 多选按钮的搜寻区域。坐标形式：[left, right, top, bottom]
+;    rectSend := [299, 353, 335, 353] ; 发送按钮区域。坐标形式：[left, right, top, bottom]
+;}
+;else if (preset = "1080local_large") {
+;    imgDuoXuan := "wechat_multi-forward_assets\duoxuan_1080local_large.png"
+;    rectDuoXuan := [205, 298, 99, 131]  ; 多选按钮的搜寻区域。坐标形式：[left, right, top, bottom]
+;    rectSend := [375, 428, 416, 442] ; 发送按钮区域。坐标形式：[left, right, top, bottom]
+;}
+;else {
+;    imgDuoXuan := "wechat_multi-forward_assets\duoxuan.png"
+;    rectDuoXuan := [270, 330, 100, 145]  ; 多选按钮的搜寻区域。坐标形式：[left, right, top, bottom]
+;    rectSend := [415, 523 ,489 ,510] ; 发送按钮区域。坐标形式：[left, right, top, bottom]
+;}
 
 ; Win + Shift + a 群发消息是否:
 ; 将 {name} 替换为全名
@@ -95,36 +107,6 @@ mouseMoveBox(x1, x2, y1, y2) {
 }
 */
 
-; NOT TO BE MERGED WITH MAIN BRANCH
-; Win + Shift + 1
-; 向 nameList 填充 导员和学委群 的群名
-#+1::
-{
-    global nameList := ["2022级导员-xzc", "2021级导员-xzc", "2020级导员-xzc", "2019级导员-xzc", "2022级学委", "2021级学委", "2019级学委"]
-    global nameListInd := 1
-    printList(nameList, "导员和学委群")
-}
-
-; NOT TO BE MERGED WITH MAIN BRANCH
-; Win + Shift + 2
-; 向 nameList 填充 各系本科教学主任 的名字
-#+2::
-{
-    global nameList := ["王振波", "王雁冰", "张小燕", "薛东杰", "郑利军", "郝耐"]
-    global nameListInd := 1
-    printList(nameList, "本科教学主任")
-}
-
-; NOT TO BE MERGED WITH MAIN BRANCH
-; Win + Shift + 2
-; 向 nameList 填充 各系本科教学主任 的名字
-#+3::
-{
-    global nameList := ["赵卫平", "杨立云", "李涛", "贺丽洁", "祝捷"]
-    global nameListInd := 1
-    printList(nameList, "系主任")
-}
-
 ; Win + Shift + z
 ; 处理来自剪贴板的输入收件人名单（换行符分隔），并将结果保存在 global nameList
 #+z::
@@ -154,15 +136,42 @@ mouseMoveBox(x1, x2, y1, y2) {
     if (not validNameList()) {
         return
     }
-    ; 寻找“多选”按钮
-    duoxuanFound := ImageSearch(&foundX, &foundY, rectDuoXuan[1], rectDuoXuan[3], rectDuoXuan[2], rectDuoXuan[4], "*25 " . imgDuoXuan)
-    if (not duoxuanFound) {
-        MsgBox "未找到多选按钮。请再试一次或调试本程序。"
+     if (WinExist("ahk_class SelectContactWnd") ) {
+        WinActivate
+    }
+    else {
+        MsgBox "请先打开转发窗口"
         return
     }
+    rectDuoXuanN := [0.385, 0.400, 0.270, 0.280]  ; 多选按钮的搜寻区域（归一化）。坐标形式：[left, right, top, bottom]
+    rectDuoXuan := [0, 0, 0, 0]
+    rectSendN := [0.571, 0.684, 0.893, 0.939] ; 发送按钮区域（归一化）。坐标形式：[left, right, top, bottom]
+    rectSend := [0, 0, 0, 0]
+    WinGetPos(&_outX, &_outY, &widthSelectContactWnd, &heightSelectContactWnd, "ahk_class SelectContactWnd")
+;    Msgbox Format("widthSelectContactWnd={1}, heightSelectContactWnd={2}", widthSelectContactWnd, heightSelectContactWnd)
+    _i := 1
+    while (_i <= 2) {
+        rectDuoXuan[_i] := Integer(widthSelectContactWnd * rectDuoXuanN[_i])
+        rectSend[_i] := Integer(widthSelectContactWnd * rectSendN[_i])
+        _i += 1
+    }
+    while (_i <= 4) {
+        rectDuoXuan[_i] := Integer(heightSelectContactWnd * rectDuoXuanN[_i])
+        rectSend[_i] := Integer(heightSelectContactWnd * rectSendN[_i])
+        _i += 1
+    }
+;    printList(rectDuoXuan, "rectDuoXuan")
+;    printList(rectSend, "rectSend")
+    ; 寻找“多选”按钮
+;    duoxuanFound := ImageSearch(&foundX, &foundY, rectDuoXuan[1], rectDuoXuan[3], rectDuoXuan[2], rectDuoXuan[4], "*25 " . imgDuoXuan)
+;    if (not duoxuanFound) {
+;        MsgBox "未找到多选按钮。请再试一次或调试本程序。"
+;        return
+;    }
+    
     ;MouseMove foundX, foundY  ; MouseMove
-    clickBox(foundX, foundX + 34, foundY, foundY + 17) ; duoxuan.png 是长35，宽18的图像
-    Sleep 50
+    clickBox(rectDuoXuan[1], rectDuoXuan[2], rectDuoXuan[3], rectDuoXuan[4]) ; duoxuan.png 是长35，宽18的图像
+    Sleep 200
     ; 聚焦输入框
     Send "^f"
     Sleep 50
@@ -172,6 +181,7 @@ mouseMoveBox(x1, x2, y1, y2) {
         SendText nameList[nameListInd + i] ; 输入联系人姓名
         Sleep 200 ; 微信此时会搜索联系人，这是一个耗时的工作
         Send "{Enter}"  ; 选中该联系人
+        Sleep 200  ; 消抖
         i += 1
         ; 退出条件1（超过名单长度）
         if (nameListInd + i > nameList.Length) {
@@ -222,9 +232,9 @@ mouseMoveBox(x1, x2, y1, y2) {
         Sleep 50
         ; 搜索联系人
         SendText nameList[nameListInd]
-        Sleep 1000  ; 这里的搜索不仅仅搜联系人，比转发更加耗时
+        Sleep 2000  ; 这里的搜索不仅仅搜联系人，比转发更加耗时
         Send "{Enter}"  ; 选中该联系人
-        Sleep 500
+        Sleep 1500
         ; 发送消息
         msg := msg_
         if (templateSubstitute) {
@@ -232,7 +242,7 @@ mouseMoveBox(x1, x2, y1, y2) {
             msg := StrReplace(msg, "{lastname}", SubStr(nameList[nameListInd], 1, 1))
         }
         SendText msg
-        Sleep 100
+        Sleep 500
         Send "{Enter}" ; 此时触发发送动作
         
         nameListInd += 1
